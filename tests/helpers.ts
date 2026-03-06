@@ -1,7 +1,8 @@
 /*
- * adonis-lucid-filter
+ * @dirupt/adonis-lucid-filter
  *
- * (c) Lookin Anton <alf@lookinlab.ru>
+ * Original work (c) Lookin Anton <alf@lookinlab.ru>
+ * Fork (c) Dirupt
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -33,7 +34,7 @@ export async function createDatabase() {
       connection: process.env.DB || 'sqlite',
       connections: {
         sqlite: {
-          client: 'sqlite3',
+          client: 'better-sqlite3',
           connection: {
             filename: join(test.context.fs.basePath, 'db.sqlite3'),
           },

@@ -1,7 +1,8 @@
 /*
- * adonis-lucid-filter
+ * @dirupt/adonis-lucid-filter
  *
- * (c) Lookin Anton <alf@lookinlab.ru>
+ * Original work (c) Lookin Anton <alf@lookinlab.ru>
+ * Fork (c) Dirupt
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -13,7 +14,7 @@ export async function configure(command: Configure) {
   const codemods = await command.createCodemods()
 
   await codemods.updateRcFile((rcFile) => {
-    rcFile.addProvider('adonis-lucid-filter/provider')
-    rcFile.addCommand('adonis-lucid-filter/commands')
+    rcFile.addProvider('@dirupt/adonis-lucid-filter/provider')
+    rcFile.addCommand('@dirupt/adonis-lucid-filter/commands')
   })
 }

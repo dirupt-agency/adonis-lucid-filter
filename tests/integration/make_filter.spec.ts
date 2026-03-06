@@ -1,7 +1,8 @@
 /*
- * adonis-lucid-filter
+ * @dirupt/adonis-lucid-filter
  *
- * (c) Lookin Anton <alf@lookinlab.ru>
+ * Original work (c) Lookin Anton <alf@lookinlab.ru>
+ * Fork (c) Dirupt
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -23,7 +24,7 @@ test.group('MakeFilter', () => {
     command.assertLog('green(DONE:)    create app/models/filters/user_filter.ts')
     await assert.fileContains(
       'app/models/filters/user_filter.ts',
-      `import { BaseModelFilter } from 'adonis-lucid-filter'`
+      `import { BaseModelFilter } from '@dirupt/adonis-lucid-filter'`
     )
     await assert.fileContains(
       'app/models/filters/user_filter.ts',

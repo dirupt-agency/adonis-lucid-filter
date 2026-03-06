@@ -1,7 +1,8 @@
 /*
- * adonis-lucid-filter
+ * @dirupt/adonis-lucid-filter
  *
- * (c) Lookin Anton <alf@lookinlab.ru>
+ * Original work (c) Lookin Anton <alf@lookinlab.ru>
+ * Fork (c) Dirupt
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -9,7 +10,7 @@
 
 import type { NormalizeConstructor } from '@adonisjs/core/types/helpers'
 import type { BaseModel } from '@adonisjs/lucid/orm'
-import type { InputObject, LucidFilterContract } from 'adonis-lucid-filter/types/filter'
+import type { InputObject, LucidFilterContract } from '@dirupt/adonis-lucid-filter/types/filter'
 import type {
   ModelQueryBuilderContract,
   QueryScope,

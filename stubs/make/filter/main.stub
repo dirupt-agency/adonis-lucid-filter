@@ -7,7 +7,7 @@
   exports({ to: app.modelsPath('filters', entity.path, modelFilterFileName) })
 }}}
 
-import { BaseModelFilter } from 'adonis-lucid-filter'
+import { BaseModelFilter } from '@dirupt/adonis-lucid-filter'
 import type { ModelQueryBuilderContract } from '@adonisjs/lucid/types/model'
 import {{ modelName }} from '#models/{{ modelFileName }}'
 

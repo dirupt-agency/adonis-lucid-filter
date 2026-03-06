@@ -1,13 +1,14 @@
 /*
- * adonis-lucid-filter
+ * @dirupt/adonis-lucid-filter
  *
- * (c) Lookin Anton <alf@lookinlab.ru>
+ * Original work (c) Lookin Anton <alf@lookinlab.ru>
+ * Fork (c) Dirupt
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
  */
 
-import type { LucidFilterContract, InputObject } from 'adonis-lucid-filter/types/filter'
+import type { LucidFilterContract, InputObject } from '@dirupt/adonis-lucid-filter/types/filter'
 
 declare module '@adonisjs/lucid/types/model' {
   type FilterableModel = LucidModel & {
@@ -26,6 +27,8 @@ declare module '@adonisjs/lucid/types/model' {
     ): ModelQueryBuilderContract<Model, InstanceType<Model>>
   }
 
-  export interface ModelQueryBuilderContract<Model extends LucidModel, Result = InstanceType<Model>>
-    extends ExcludeFilterableMethods<FilterableMethods<Model>, Model> {}
+  export interface ModelQueryBuilderContract<
+    Model extends LucidModel,
+    Result = InstanceType<Model>,
+  > extends ExcludeFilterableMethods<FilterableMethods<Model>, Model> {}
 }
