@@ -13,18 +13,18 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4.5.1
         with:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
 
       - run: npm install
 
-      - uses: changesets/action@v1
+      - uses: changesets/action@d94a5c301145045a0960133674e003b265942a22  # v1.8.0
         with:
           publish: npm run changeset:publish
           version: npm run changeset:version
