@@ -16,6 +16,7 @@ import type {
   QueryScope,
   QueryScopeCallback,
 } from '@adonisjs/lucid/types/model'
+import { resolveFilter } from './base_model.js'
 
 export const Filterable = <Model extends NormalizeConstructor<typeof BaseModel>>(
   superclass: Model
@@ -34,8 +35,8 @@ export const Filterable = <Model extends NormalizeConstructor<typeof BaseModel>>
       input: InputObject<InstanceType<Filter>>,
       filter?: Filter
     ): ModelQueryBuilderContract<T> {
-      const Filter = filter || this.$filter()
-      return new Filter(this.query(), input).handle()
+      const FilterClass = resolveFilter(this, filter) as Filter
+      return new FilterClass(this.query(), input).handle()
     }
 
     /**
@@ -47,8 +48,8 @@ export const Filterable = <Model extends NormalizeConstructor<typeof BaseModel>>
       input,
       filter?: LucidFilterContract
     ) {
-      const Filter = filter || this.$filter()
-      return new Filter(query, input).handle()
+      const FilterClass = resolveFilter(this, filter)
+      return new FilterClass(query, input).handle()
     } as QueryScope<Model, QueryScopeCallback>
   }
   return FilterableModel
