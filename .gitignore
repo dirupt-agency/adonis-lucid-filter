@@ -10,6 +10,7 @@ npm-debug.log
 *.log
 build
 dist
+*.tgz
 shrinkwrap.yaml
 test-helpers/tmp
 yarn.lock

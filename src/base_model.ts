@@ -9,10 +9,42 @@
  */
 
 import camelCase from 'lodash/camelCase.js'
+import type { LucidModel, LucidRow, ModelQueryBuilderContract } from '@adonisjs/lucid/types/model'
 import type { LucidFilter, LucidFilterContract } from './types/filter.js'
 
-function StaticImplements<T>() {
-  return (_t: T) => {}
+const DROP_ID_RE = /^(.*)(_id|Id)$/
+
+/**
+ * Lifecycle and internal helpers that must never be invoked through user input.
+ * Without this guard, an input key like `handle` or `$filterByInput` would
+ * dispatch to the lifecycle method itself with the raw user value.
+ */
+const RESERVED_METHODS = new Set<string>([
+  'constructor',
+  'handle',
+  'setup',
+  'whitelistMethod',
+  '$filterByInput',
+  '$getFilterMethod',
+  '$methodIsCallable',
+  '$methodIsBlacklisted',
+])
+
+/**
+ * Resolve a filter class from either an explicit override or the model's
+ * static `$filter()` factory, with an actionable error if neither is defined.
+ */
+export function resolveFilter(
+  model: { name?: string; $filter?: () => LucidFilterContract },
+  explicit?: LucidFilterContract
+): LucidFilterContract {
+  const Filter = explicit ?? model.$filter?.()
+  if (typeof Filter !== 'function') {
+    throw new Error(
+      `[@dirupt/adonis-lucid-filter] $filter() is not defined on model "${model.name ?? 'unknown'}". Apply the Filterable mixin and assign a static $filter.`
+    )
+  }
+  return Filter
 }
 
 /**
@@ -21,7 +53,6 @@ function StaticImplements<T>() {
  * @class BaseModelFilter
  * @constructor
  */
-@StaticImplements<LucidFilterContract>()
 export class BaseModelFilter implements LucidFilter {
   declare ['constructor']: typeof BaseModelFilter
   declare $blacklist: string[]
@@ -30,18 +61,20 @@ export class BaseModelFilter implements LucidFilter {
   static dropId: boolean = true
   static camelCase: boolean = true
 
-  setup?($query: any): void
+  setup?($query: ModelQueryBuilderContract<LucidModel, LucidRow>): void
 
   constructor(
-    public $query: any,
+    public $query: ModelQueryBuilderContract<LucidModel, LucidRow>,
     public $input: object
   ) {
-    this.$input = BaseModelFilter.removeEmptyInput(this.$input)
+    const safeInput =
+      $input !== null && typeof $input === 'object' && !Array.isArray($input) ? $input : {}
+    this.$input = BaseModelFilter.removeEmptyInput(safeInput)
     this.$blacklist = [...this.constructor.blacklist]
   }
 
-  handle(): any {
-    if (this.setup && typeof this.setup === 'function') {
+  handle(): ModelQueryBuilderContract<LucidModel, LucidRow> {
+    if (typeof this.setup === 'function') {
       this.setup(this.$query)
     }
     this.$filterByInput()
@@ -59,45 +92,39 @@ export class BaseModelFilter implements LucidFilter {
   }
 
   $filterByInput(): void {
-    for (const key in this.$input) {
+    const input = this.$input as Record<string, unknown>
+    for (const key of Object.keys(input)) {
       const method = this.$getFilterMethod(key)
-
-      const keyName = key as keyof typeof this.$input
-      const value: unknown = this.$input[keyName]
+      const value = input[key]
 
       if (this.$methodIsCallable(method)) {
-        ;(this[method as keyof this] as Function)(value)
+        ;(this[method as keyof this] as (v: unknown) => unknown)(value)
       }
     }
   }
 
   $getFilterMethod(key: string): string {
-    const methodName = this.constructor.dropId ? key.replace(/^(.*)(_id|Id)$/, '$1') : key
+    const methodName = this.constructor.dropId ? key.replace(DROP_ID_RE, '$1') : key
     return this.constructor.camelCase ? camelCase(methodName) : methodName
   }
 
   static removeEmptyInput(input: object): object {
-    const filteredInput = {}
+    const filteredInput: Record<string, unknown> = {}
+    const source = input as Record<string, unknown>
 
-    for (const key in input) {
-      const keyName = key as keyof typeof input
-      const value = input[keyName]
-
+    for (const key of Object.keys(source)) {
+      const value = source[key]
       if (value !== '' && value !== null && value !== undefined) {
-        filteredInput[keyName] = value
+        filteredInput[key] = value
       }
     }
     return filteredInput
   }
 
   $methodIsCallable(method: string): boolean {
-    const methodKey = method as keyof this
-
-    return (
-      !!this[methodKey] &&
-      typeof this[methodKey] === 'function' &&
-      !this.$methodIsBlacklisted(method)
-    )
+    if (RESERVED_METHODS.has(method)) return false
+    const fn = this[method as keyof this]
+    return typeof fn === 'function' && !this.$methodIsBlacklisted(method)
   }
 
   $methodIsBlacklisted(method: string): boolean {
