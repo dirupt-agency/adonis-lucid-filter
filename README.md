@@ -2,7 +2,7 @@
 
 > Fork of [adonis-lucid-filter](https://github.com/lookinlab/adonis-lucid-filter) with AdonisJS v7 support
 
-[![npm-image]][npm-url] [![license-image]][license-url] [![typescript-image]][typescript-url]
+[![npm-image]][npm-url] [![ci-image]][ci-url] [![license-image]][license-url] [![typescript-image]][typescript-url]
 
 This addon adds the functionality to filter Lucid Models.
 
@@ -20,6 +20,37 @@ This package is a fork of [`adonis-lucid-filter`](https://github.com/lookinlab/a
 | ^6.\*.\*                    | ^22.\*.\*       | v7       |
 
 For AdonisJS v6, use the original package: [`adonis-lucid-filter@^5`](https://github.com/lookinlab/adonis-lucid-filter)
+
+## Migrating from `adonis-lucid-filter`
+
+If you are coming from the upstream `adonis-lucid-filter` package, the migration is straightforward:
+
+```bash
+pnpm remove adonis-lucid-filter
+pnpm add @dirupt/adonis-lucid-filter
+```
+
+Then update your imports across the codebase:
+
+```diff
+- import { BaseModelFilter, Filterable } from 'adonis-lucid-filter'
++ import { BaseModelFilter, Filterable } from '@dirupt/adonis-lucid-filter'
+```
+
+And update your `adonisrc.ts`:
+
+```diff
+  providers: [
+-   () => import('adonis-lucid-filter/provider'),
++   () => import('@dirupt/adonis-lucid-filter/provider'),
+  ],
+  commands: [
+-   () => import('adonis-lucid-filter/commands')
++   () => import('@dirupt/adonis-lucid-filter/commands')
+  ]
+```
+
+> Do not keep both packages installed at the same time, they extend the same `ModelQueryBuilder` and will conflict.
 
 ## Introduction
 
@@ -78,6 +109,8 @@ export default class UsersController {
 ```
 
 ## Installation
+
+> Requires Node.js 24+ and TypeScript with `strict: true` for full type inference on filter inputs.
 
 ```bash
 pnpm add @dirupt/adonis-lucid-filter
@@ -277,12 +310,36 @@ export default class UserPostsController {
 
 > The relation model must have the `Filterable` mixin and `$filter` must be defined
 
+### Type-safe input
+
+The package exposes an `InputObject<>` helper that infers accepted input keys directly from your filter class. Both `snake_case`, `camelCase` and `_id` variants are recognised:
+
+```ts
+import type { InputObject } from '@dirupt/adonis-lucid-filter/types/filter'
+import type UserFilter from '#models/filters/user_filter'
+
+type UserFilterInput = InputObject<UserFilter>
+// → { company?: number; companyId?: number; company_id?: number;
+//     name?: string; mobilePhone?: string; mobile_phone?: string; ... }
+
+// Useful to type request payloads or DTOs:
+async index({ request }: HttpContext) {
+  const input = request.qs() as UserFilterInput
+  return User.filter(input).exec()
+}
+```
+
+Your IDE will autocomplete the legal keys based on the methods you declared on `UserFilter`.
+
 ## License
 
 [MIT](./LICENSE.md)
 
 [npm-image]: https://img.shields.io/npm/v/@dirupt/adonis-lucid-filter?logo=npm&style=for-the-badge
 [npm-url]: https://www.npmjs.com/package/@dirupt/adonis-lucid-filter
+
+[ci-image]: https://img.shields.io/github/actions/workflow/status/dirupt-agency/adonis-lucid-filter/ci.yml?branch=master&style=for-the-badge&logo=github&label=CI
+[ci-url]: https://github.com/dirupt-agency/adonis-lucid-filter/actions/workflows/ci.yml
 
 [license-image]: https://img.shields.io/npm/l/@dirupt/adonis-lucid-filter?style=for-the-badge&color=blueviolet
 [license-url]: https://github.com/dirupt-agency/adonis-lucid-filter/blob/master/LICENSE.md

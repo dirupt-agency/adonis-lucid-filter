@@ -99,4 +99,18 @@ test.group('ModelFilter', () => {
     const result2 = userFilter.whitelistMethod('missing_key')
     assert.strictEqual(result2, false)
   })
+
+  test('blacklist mutations are isolated per instance', ({ assert }) => {
+    class User extends BaseModel {}
+    User.boot()
+
+    const first = new TestModelFilter(User.query(), {})
+    const second = new TestModelFilter(User.query(), {})
+
+    first.whitelistMethod('email')
+
+    assert.notInclude(first.$blacklist, 'email')
+    assert.include(second.$blacklist, 'email')
+    assert.include(TestModelFilter.blacklist, 'email')
+  })
 })
