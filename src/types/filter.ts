@@ -40,22 +40,24 @@ export interface LucidFilterContract {
  * Pick keys from methods of filter with a type of first value
  */
 type PickKeys<Filter> = {
-  [Key in keyof Filter as SnakeCase<
-    Exclude<Key, keyof LucidFilter | 'constructor'>
-  >]: Filter[Key] extends (value: infer V, ...args: any) => any ? V : never
+  [
+    Key in keyof Filter as SnakeCase<Exclude<Key, keyof LucidFilter | 'constructor'>>
+  ]: Filter[Key] extends (value: infer V, ...args: any) => any ? V : never
 }
 
 /**
  * Add `_id` to end of SnakeCase keys with number type
  */
 type KeysWithIds<SCKeys> = {
-  [Key in keyof SCKeys as Key extends string
-    ? 'id' extends Split<Key, '_'>[number]
-      ? never
-      : SCKeys[Key] extends number
-        ? `${string & Key}_id`
-        : never
-    : never]?: SCKeys[Key]
+  [
+    Key in keyof SCKeys as Key extends string
+      ? 'id' extends Split<Key, '_'>[number]
+        ? never
+        : SCKeys[Key] extends number
+          ? `${string & Key}_id`
+          : never
+      : never
+  ]?: SCKeys[Key]
 }
 
 /**
