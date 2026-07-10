@@ -138,5 +138,8 @@
     "dts": false,
     "sourcemap": true,
     "target": "esnext"
+  },
+  "volta": {
+    "node": "24.18.0"
   }
 }
