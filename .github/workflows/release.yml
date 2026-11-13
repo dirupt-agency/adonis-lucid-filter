@@ -13,23 +13,23 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5  # v4.3.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
         with:
           fetch-depth: 0
 
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020  # v4.5.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
         with:
           node-version: '24'
           registry-url: 'https://registry.npmjs.org'
+          package-manager-cache: false
 
       - run: npm install
 
-      - uses: changesets/action@d94a5c301145045a0960133674e003b265942a22  # v1.8.0
+      - uses: changesets/action@ae32849d5ba541f9ae29e40e22a623bc13562f51  # v2.1.2
         with:
-          publish: npm run changeset:publish
-          version: npm run changeset:version
-          commit: 'chore(release): version packages'
-          title: 'chore(release): version packages'
+          publish-script: npm run changeset:publish
+          version-script: npm run changeset:version
+          commit-message: 'chore(release): version packages'
+          pr-title: 'chore(release): version packages'
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_CONFIG_PROVENANCE: true

@@ -1,0 +1,39 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    # Raise the range floor to the new version on every update. The default
+    # ("auto") widens ranges for published libraries, which would leave the
+    # tested floors behind and produce no PR at all for in-range updates.
+    versioning-strategy: "increase"
+    commit-message:
+      prefix: "chore(deps)"
+    groups:
+      npm-minor-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
+    ignore:
+      # @types/node tracks the Node engine (24), bumped by hand with `engines`.
+      - dependency-name: "@types/node"
+        update-types: ["version-update:semver-major"]
+      # TypeScript 7.0 ships no compiler API: typescript-eslint (peer <6.1.0)
+      # and @adonisjs/assembler (peer ^5 || ^6) cannot load it. Revisit with 7.1.
+      - dependency-name: "typescript"
+        versions: [">=7.0.0"]
+      # better-sqlite3 13 is an N-API rewrite that @adonisjs/lucid does not
+      # test yet (still ^12). Revisit when Lucid moves to 13.
+      - dependency-name: "better-sqlite3"
+        versions: [">=13.0.0"]
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    commit-message:
+      prefix: "ci"
+    groups:
+      actions-minor-patch:
+        patterns: ["*"]
+        update-types: ["minor", "patch"]
