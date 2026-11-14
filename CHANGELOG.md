@@ -1,6 +1,18 @@
-# @dirupt/adonis-lucid-filter
+# Changelog
 
-## 6.0.4
+All notable changes to this package are documented in this file. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the package follows [Semantic Versioning](https://semver.org/).
+
+## [Unreleased]
+
+### Changed
+
+- `CHANGELOG.md` now ships in the package, and its headings follow Keep a Changelog (`## [x.y.z] - YYYY-MM-DD`). Entries are written by hand, the section of a version is also the notes of its GitHub release.
+- Releases are cut with `release-it` and published from CI on a pushed `v*` tag, through npm trusted publishing with provenance. Prereleases (`x.y.z-rc.N`) go to the `next` dist-tag, never `latest`. Changesets is removed.
+- CI now tests on Node 24 and 26, and checks that the built package loads on Node 24.0.0, the floor of `engines`.
+
+No runtime code change.
+
+## [6.0.4] - 2026-11-13
 
 ### Patch Changes
 
@@ -36,7 +48,7 @@
 
   The `esbuild` advisory (GHSA-g7r4-m6w7-qqqr) is cleared by `tsup` 9.
 
-## 6.0.3
+## [6.0.3] - 2026-07-10
 
 ### Patch Changes
 
@@ -48,7 +60,7 @@
 
   No runtime code changes. `src/types/filter.ts` was reformatted by the updated Prettier config, with identical type semantics.
 
-## 6.0.2
+## [6.0.2] - 2026-05-21
 
 ### Patch Changes
 
@@ -62,7 +74,7 @@
 
   No public API changes.
 
-## 6.0.1
+## [6.0.1] - 2026-05-21
 
 ### Patch Changes
 

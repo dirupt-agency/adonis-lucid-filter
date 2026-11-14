@@ -3,6 +3,7 @@ name: CI
 on:
   push:
     branches: [master]
+    tags: ['v*']
   pull_request:
 
 permissions:
@@ -22,10 +23,79 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: ['24', '26']
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: ${{ matrix.node }}
+      - run: npm install
+      - run: npm run quick:test
+
+  oldest-node:
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
         with:
           node-version: '24'
       - run: npm install
-      - run: npm run quick:test
+      - run: npm run build
+      # The oldest Node 24 that engines.node admits. Change it with engines.node.
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: '24.0.0'
+      - name: The built package loads on the oldest supported Node
+        run: node --input-type=module -e "await import('./build/index.js')"
+
+  publish:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [lint, test, oldest-node]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1  # v7.1.0
+        with:
+          node-version: '24'
+          registry-url: 'https://registry.npmjs.org'
+          package-manager-cache: false
+      - run: npm install
+      - name: The tag must match the package version
+        run: test "v$(node -p "require('./package.json').version")" = "$GITHUB_REF_NAME"
+      - name: Trusted publishing needs npm 11.5.1 or later
+        run: |
+          node -e '
+            const raw = process.argv[1]
+            const [major, minor, patch] = raw.split(".").map(Number)
+            const ok = major > 11 || (major === 11 && (minor > 5 || (minor === 5 && patch >= 1)))
+            if (!ok) { console.error("npm " + raw + " is older than 11.5.1"); process.exit(1) }
+          ' "$(npm --version)"
+      - name: Publish, a prerelease under the next dist-tag
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          case "$VERSION" in
+            *-*) npm publish --tag next ;;
+            *) npm publish ;;
+          esac
+      - name: Create the GitHub release from the changelog
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          VERSION="$(node -p "require('./package.json').version")"
+          awk -v v="$VERSION" '
+            index($0, "## [" v "]") == 1 { found = 1; next }
+            found && /^## \[/ { exit }
+            found { print }
+          ' CHANGELOG.md > "$RUNNER_TEMP/notes.md"
+          test -s "$RUNNER_TEMP/notes.md"
+          case "$VERSION" in
+            *-*) PRERELEASE="--prerelease" ;;
+            *) PRERELEASE="" ;;
+          esac
+          gh release create "v$VERSION" --verify-tag --title "v$VERSION" --notes-file "$RUNNER_TEMP/notes.md" $PRERELEASE
