@@ -150,7 +150,11 @@
       "commitMessage": "chore(release): ${version}",
       "tagName": "v${version}",
       "tagAnnotation": "v${version}",
-      "push": true
+      "push": true,
+      "pushArgs": []
+    },
+    "hooks": {
+      "after:release": "git push origin refs/tags/v${version}"
     },
     "github": {
       "release": false
