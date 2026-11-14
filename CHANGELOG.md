@@ -4,6 +4,14 @@ All notable changes to this package are documented in this file. The format foll
 
 ## [Unreleased]
 
+### Changed
+
+- `CHANGELOG.md` now ships in the package, and its headings follow Keep a Changelog (`## [x.y.z] - YYYY-MM-DD`). Entries are written by hand, the section of a version is also the notes of its GitHub release.
+- Releases are cut with `release-it` and published from CI on a pushed `v*` tag, through npm trusted publishing with provenance. Prereleases (`x.y.z-rc.N`) go to the `next` dist-tag, never `latest`. Changesets is removed.
+- CI now tests on Node 24 and 26, and checks that the built package loads on Node 24.0.0, the floor of `engines`.
+
+No runtime code change.
+
 ## [6.0.5-rc.0] - 2026-11-14
 
 ### Changed
