@@ -4,6 +4,8 @@ All notable changes to this package are documented in this file. The format foll
 
 ## [Unreleased]
 
+## [6.0.5-rc.0] - 2026-11-14
+
 ### Changed
 
 - `CHANGELOG.md` now ships in the package, and its headings follow Keep a Changelog (`## [x.y.z] - YYYY-MM-DD`). Entries are written by hand, the section of a version is also the notes of its GitHub release.
